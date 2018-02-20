@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Silktide\SyringeVerifier;
+namespace Lexide\Pharmacist;
 
 
 trait Loggable

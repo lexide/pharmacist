@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 $baseAutoloader = __DIR__."/vendor/autoload.php";
@@ -8,6 +9,6 @@ if (file_exists($baseAutoloader)) {
     require_once("vendor/autoload.php");
 }
 
-$application = new \Symfony\Component\Console\Application("SyringeVerifier", "1.0");
-$application->add(new \Silktide\SyringeVerifier\VerifyCommand());
+$application = new \Symfony\Component\Console\Application("Pharmacist", "1.0");
+$application->add(new \Lexide\Pharmacist\VerifyCommand());
 $application->run();

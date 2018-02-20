@@ -1,5 +1,5 @@
 <?php
-namespace Silktide\SyringeVerifier\Parser;
+namespace Lexide\Pharmacist\Parser;
 
 class ComposerParser
 {
@@ -45,19 +45,39 @@ class ComposerParser
     {
         $paths = [
             "extra",
-            "downsider-puzzle-di",
-            "silktide/syringe",
+            ["lexide/puzzle-di", "downsider-puzzle-di"],
+            "lexide/syringe",
+            "!files",
             "path"
         ];
 
-        $sub = "";
-        foreach ($paths as $directory) {
-            $sub.="{$directory}";
-            if (!isset($array[$directory])) {
-                return false;
+        foreach ($paths as $directories) {
+            if (!is_array($directories)) {
+                $directories = [$directories];
             }
-            $array = $array[$directory];
-            $sub.="\\";
+            $newArray = null;
+            $isOptional = false;
+            foreach ($directories as $directory) {
+
+                $isOptional = false;
+                if ($directory[0] == "!") {
+                    $directory = substr($directory, 1);
+                    $isOptional = true;
+                }
+                if (!isset($array[$directory])) {
+                    continue;
+                }
+                $newArray = $array[$directory];
+                break;
+            }
+            if (!isset($newArray)) {
+                if ($isOptional) {
+                    $newArray = $array;
+                } else {
+                    return false;
+                }
+            }
+            $array = $newArray;
         }
 
         // Will return something like "config/syringe.yml"

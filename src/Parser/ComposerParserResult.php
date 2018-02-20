@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Silktide\SyringeVerifier\Parser;
+namespace Lexide\Pharmacist\Parser;
 
 
 class ComposerParserResult

@@ -1,13 +1,13 @@
 <?php
 
-namespace Silktide\SyringeVerifier;
+namespace Lexide\Pharmacist;
 
-use Silktide\Syringe\ContainerBuilder;
-use Silktide\Syringe\Loader\JsonLoader;
-use Silktide\Syringe\Loader\YamlLoader;
-use Silktide\Syringe\ReferenceResolver;
-use Silktide\SyringeVerifier\Parser\ComposerParser;
-use Silktide\SyringeVerifier\Parser\ComposerParserResult;
+use Lexide\Syringe\ContainerBuilder;
+use Lexide\Syringe\Loader\JsonLoader;
+use Lexide\Syringe\Loader\YamlLoader;
+use Lexide\Syringe\ReferenceResolver;
+use Lexide\Pharmacist\Parser\ComposerParser;
+use Lexide\Pharmacist\Parser\ComposerParserResult;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
