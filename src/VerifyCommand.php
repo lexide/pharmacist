@@ -32,8 +32,9 @@ class VerifyCommand extends Command
     {
         // By setting the name as list, it's the default thing that will be run
         $this->setName("verify")
-             ->addOption("configs", "c", InputOption::VALUE_IS_ARRAY + InputOption::VALUE_OPTIONAL, "Any additional configs we want to add manually", [])
-             ->addOption("force", "f", InputOption::VALUE_NONE, "Whether we want to force through trying it regardless of whether it looks like we're using Puzzle-DI in the parent project");
+            ->addOption("configs", "c", InputOption::VALUE_IS_ARRAY + InputOption::VALUE_OPTIONAL, "Any additional configs we want to add manually", [])
+            ->addOption("force", "f", InputOption::VALUE_NONE, "Whether we want to force through trying it regardless of whether it looks like we're using Puzzle-DI in the parent project")
+            ->addOption("allowStubs", "s", InputOption::VALUE_NONE, "If set, will not complain about stubbed services.");
     }
 
     public function execute(InputInterface $inputInterface, OutputInterface $outputInterface)
@@ -53,7 +54,9 @@ class VerifyCommand extends Command
             return 1;
         }
 
-        $container = $this->setupContainer($parserResult);
+        $allowStubs = (bool) $inputInterface->getOption("allowStubs");
+
+        $container = $this->setupContainer($parserResult, $allowStubs);
 
         $this->log("Attempting to build all services!");
         $this->log(count($container->keys())." services/parameters found!");
@@ -79,7 +82,7 @@ class VerifyCommand extends Command
         }
     }
 
-    public function setupContainer(ComposerParserResult $parserResult)
+    public function setupContainer(ComposerParserResult $parserResult, $allowStubs)
     {
         $directory = $parserResult->getDirectory();
 
@@ -90,7 +93,10 @@ class VerifyCommand extends Command
         ];
 
         include($directory."/vendor/autoload.php");
-        $builder = new ContainerBuilder($resolver, [$directory]);
+
+        $serviceFactoryClass = $allowStubs? ServiceFactory::class: \Lexide\Syringe\ServiceFactory::class;
+
+        $builder = new ContainerBuilder($resolver, [$directory], $serviceFactoryClass);
         foreach ($loaders as $loader) {
             $builder->addLoader($loader);
         }
