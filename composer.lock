@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ddbb68d995c956502a394addf20ad7e2",
+    "content-hash": "af76641e58e1efbe0f89c9b9e6737462",
     "packages": [
         {
             "name": "hamcrest/hamcrest-php",
@@ -53,16 +53,16 @@
         },
         {
             "name": "lexide/syringe",
-            "version": "2.1.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
-                "url": "git@ssh.git.datahub.iil.co.uk:tools/syringe.git",
-                "reference": "a6a3840598e295f256b03ae48f437409b88d181f"
+                "url": "https://github.com/lexide/syringe.git",
+                "reference": "611c1222ec6ce4bf551fc028a4accf7143a29337"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lexide/syringe/zipball/a6a3840598e295f256b03ae48f437409b88d181f",
-                "reference": "a6a3840598e295f256b03ae48f437409b88d181f",
+                "url": "https://api.github.com/repos/lexide/syringe/zipball/611c1222ec6ce4bf551fc028a4accf7143a29337",
+                "reference": "611c1222ec6ce4bf551fc028a4accf7143a29337",
                 "shasum": ""
             },
             "require": {
@@ -95,7 +95,7 @@
             ],
             "description": "Lexide Syringe, configuration utility for Pimple",
             "homepage": "https://github.com/lexide/syringe",
-            "time": "2018-02-20T10:52:08+00:00"
+            "time": "2018-03-16T16:56:33+00:00"
         },
         {
             "name": "mockery/mockery",
