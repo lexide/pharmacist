@@ -54,7 +54,7 @@ class VerifyCommand extends Command
             return 1;
         }
 
-        $allowStubs = (bool) $inputInterface->getOption("allowStubs")
+        $allowStubs = (bool) $inputInterface->getOption("allowStubs");
 
         $container = $this->setupContainer($parserResult, $allowStubs);
 
