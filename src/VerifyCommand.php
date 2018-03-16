@@ -90,7 +90,7 @@ class VerifyCommand extends Command
         ];
 
         include($directory."/vendor/autoload.php");
-        $builder = new ContainerBuilder($resolver, [$directory]);
+        $builder = new ContainerBuilder($resolver, [$directory], ServiceFactory::class);
         foreach ($loaders as $loader) {
             $builder->addLoader($loader);
         }
