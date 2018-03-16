@@ -13,7 +13,7 @@ class ServiceFactory extends BaseFactory
     public function createStub($key, array $definition)
     {
         // if this stub's definition includes a class, use a mock of that class as the service
-        if (!empty($definition["class"]) && class_exists($definition["class"])) {
+        if (!empty($definition["class"]) && (class_exists($definition["class"]) || interface_exists($definition["class"]))) {
             return \Mockery::mock($definition["class"]);
         }
         return parent::createStub($key, $definition);
