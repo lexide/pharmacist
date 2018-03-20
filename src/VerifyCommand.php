@@ -102,6 +102,11 @@ class VerifyCommand extends Command
         }
 
         $builder->setApplicationRootDirectory($directory);
+
+        // add vendor config files
+        $builder->addConfigFiles($parserResult->getConfigList());
+
+        // add application config files
         if ($parserResult->usesSyringe()) {
             $builder->addConfigFile($parserResult->getAbsoluteSyringeConfig());
 
@@ -115,7 +120,6 @@ class VerifyCommand extends Command
         foreach ($additionalConfigs as $config) {
             $builder->addConfigFile(realpath($config));
         }
-        $builder->addConfigFiles($parserResult->getConfigList());
 
 
         return $builder->createContainer();
