@@ -3,7 +3,7 @@ namespace Lexide\Pharmacist\Parser;
 
 class ComposerParser
 {
-    public function parse($filename)
+    public function parse($filename, array $whitelist = [])
     {
         if (!file_exists($filename)) {
             throw new \Exception("No composer file exists at '{$filename}'");
@@ -15,21 +15,24 @@ class ComposerParser
             throw new \Exception("Could not decode '{$filename}'. ".json_last_error_msg());
         }
 
+        $whitelist = array_replace($whitelist, $this->getSyringeWhitelist($array) ?: []);
+
         $result = new ComposerParserResult();
+        $result->setName($array["name"]);
         $result->setNamespace($this->getNamespace($array));
         $result->setDirectory(dirname($filename));
         $result->setSyringeConfig($this->getSyringeConfig($array));
-        $result->setChildren($this->getPuzzleChildren(dirname($filename)));
+        $result->setChildren($this->getPuzzleChildren(dirname($filename), $whitelist));
         return $result;
     }
 
-    protected function getPuzzleChildren($dirname)
+    protected function getPuzzleChildren($dirname, $whitelist)
     {
         $composerFiles = glob($dirname."/vendor/*/*/composer.json");
         $children = [];
         foreach ($composerFiles as $filename) {
-            $parsedComposer = $this->parse($filename);
-            if ($parsedComposer->usesSyringe()) {
+            $parsedComposer = $this->parse($filename, $whitelist);
+            if ($parsedComposer->usesSyringe() && in_array($parsedComposer->getName(), $whitelist)) {
                 $children[] = $parsedComposer;
             }
         }
@@ -51,6 +54,23 @@ class ComposerParser
             "path"
         ];
 
+        return $this->traverseConfigArray($paths, $array);
+    }
+
+    protected function getSyringeWhitelist($array)
+    {
+        $paths = [
+            "extra",
+            ["lexide/puzzle-di", "downsider-puzzle-di"],
+            "whitelist",
+            "lexide/syringe"
+        ];
+
+        return $this->traverseConfigArray($paths, $array);
+    }
+
+    protected function traverseConfigArray($paths, $array)
+    {
         foreach ($paths as $directories) {
             if (!is_array($directories)) {
                 $directories = [$directories];

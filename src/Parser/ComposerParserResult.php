@@ -6,6 +6,7 @@ namespace Lexide\Pharmacist\Parser;
 
 class ComposerParserResult
 {
+    protected $name;
     protected $syringeConfig;
     protected $namespace;
     protected $directory;
@@ -14,6 +15,11 @@ class ComposerParserResult
      * @var ComposerParserResult[]
      */
     protected $children;
+
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
 
     public function setNamespace($namespace)
     {
@@ -38,6 +44,11 @@ class ComposerParserResult
     public function usesSyringe()
     {
         return $this->syringeConfig !== false;
+    }
+
+    public function getName()
+    {
+        return $this->name;
     }
 
     public function getNamespace()
