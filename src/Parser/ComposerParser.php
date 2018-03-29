@@ -46,8 +46,8 @@ class ComposerParser
         $paths = [
             "extra",
             ["lexide/puzzle-di", "downsider-puzzle-di"],
-            "lexide/syringe",
             "!files",
+            "lexide/syringe",
             "path"
         ];
 
