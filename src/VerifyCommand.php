@@ -85,6 +85,8 @@ class VerifyCommand extends Command
             }
         }
 
+        unset($build, $container);
+
         if (count($exceptions) > 0) {
             $this->error("Failed to successfully build ".count($exceptions)." bits of DI config");
             foreach ($exceptions as $e) {
