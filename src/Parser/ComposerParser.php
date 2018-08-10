@@ -101,7 +101,7 @@ class ComposerParser
             "lexide/syringe"
         ];
 
-        return $this->traverseConfigArray($paths, $array);
+        return $this->traverseConfigArray($paths, $array) ?: [];
     }
 
     /**
