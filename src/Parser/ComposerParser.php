@@ -3,10 +3,14 @@ namespace Lexide\Pharmacist\Parser;
 
 class ComposerParser
 {
-    public function parse($filename, array $whitelist = [])
+    public function parse($filename, array $whitelist = [], $projectDirectory = null)
     {
         if (!file_exists($filename)) {
             throw new \Exception("No composer file exists at '{$filename}'");
+        }
+
+        if (empty($projectDirectory)) {
+            $projectDirectory = dirname($filename);
         }
 
         $array = json_decode(file_get_contents($filename), true);
@@ -22,16 +26,16 @@ class ComposerParser
         $result->setNamespace($this->getNamespace($array));
         $result->setDirectory(dirname($filename));
         $result->setSyringeConfig($this->getSyringeConfig($array));
-        $result->setChildren($this->getPuzzleChildren(dirname($filename), $whitelist));
+        $result->setChildren($this->getPuzzleChildren($projectDirectory, $whitelist));
         return $result;
     }
 
-    protected function getPuzzleChildren($dirname, $whitelist)
+    protected function getPuzzleChildren($projectDirectory, $whitelist)
     {
-        $composerFiles = glob($dirname."/vendor/*/*/composer.json");
+        $composerFiles = glob($projectDirectory."/vendor/*/*/composer.json");
         $children = [];
         foreach ($composerFiles as $filename) {
-            $parsedComposer = $this->parse($filename, $whitelist);
+            $parsedComposer = $this->parse($filename, $whitelist, $projectDirectory);
             if ($parsedComposer->usesSyringe() && in_array($parsedComposer->getName(), $whitelist)) {
                 $children[] = $parsedComposer;
             }
