@@ -17,9 +17,19 @@ class VerifyCommand extends Command
 {
     use Loggable;
 
+    /**
+     * @var ComposerParser
+     */
     protected $composerParser;
-    protected $log;
+
+    /**
+     * @var InputInterface
+     */
     protected $input;
+
+    /**
+     * @var OutputInterface
+     */
     protected $output;
 
     public function __construct()
@@ -37,6 +47,11 @@ class VerifyCommand extends Command
             ->addOption("allowStubs", "s", InputOption::VALUE_NONE, "If set, will not complain about stubbed services.");
     }
 
+    /**
+     * @param InputInterface $inputInterface
+     * @param OutputInterface $outputInterface
+     * @return int|null
+     */
     public function execute(InputInterface $inputInterface, OutputInterface $outputInterface)
     {
         $this->input = $inputInterface;
@@ -70,6 +85,8 @@ class VerifyCommand extends Command
             }
         }
 
+        unset($build, $container);
+
         if (count($exceptions) > 0) {
             $this->error("Failed to successfully build ".count($exceptions)." bits of DI config");
             foreach ($exceptions as $e) {
@@ -82,6 +99,11 @@ class VerifyCommand extends Command
         }
     }
 
+    /**
+     * @param ComposerParserResult $parserResult
+     * @param $allowStubs
+     * @return \Pimple\Container
+     */
     public function setupContainer(ComposerParserResult $parserResult, $allowStubs)
     {
         $directory = $parserResult->getDirectory();
@@ -92,6 +114,7 @@ class VerifyCommand extends Command
             new YamlLoader()
         ];
 
+        /** @noinspection PhpIncludeInspection */
         include($directory."/vendor/autoload.php");
 
         $serviceFactoryClass = $allowStubs? ServiceFactory::class: \Lexide\Syringe\ServiceFactory::class;
@@ -104,7 +127,7 @@ class VerifyCommand extends Command
         $builder->setApplicationRootDirectory($directory);
 
         // add vendor config files
-        $builder->addConfigFiles($parserResult->getConfigList());
+        $builder->addConfigFiles($parserResult->getPuzzleConfigList());
 
         // add application config files
         if ($parserResult->usesSyringe()) {

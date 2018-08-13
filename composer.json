@@ -9,6 +9,7 @@
     ],
     "require": {
         "php": ">=5.6.0",
+        "ext-json": "*",
         "lexide/syringe": "^2.1.1",
         "symfony/console": "~2.8|^3.0",
         "mockery/mockery": "^1.0"

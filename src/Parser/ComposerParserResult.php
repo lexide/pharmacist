@@ -10,11 +10,8 @@ class ComposerParserResult
     protected $syringeConfig;
     protected $namespace;
     protected $directory;
-
-    /**
-     * @var ComposerParserResult[]
-     */
-    protected $children;
+    protected $puzzleWhitelist;
+    protected $puzzleConfigList;
 
     public function setName($name)
     {
@@ -31,14 +28,25 @@ class ComposerParserResult
         $this->directory = $directory;
     }
 
-    public function setChildren($children)
-    {
-        $this->children = $children;
-    }
-
     public function setSyringeConfig($syringeConfig)
     {
         $this->syringeConfig = $syringeConfig;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPuzzleWhitelist()
+    {
+        return $this->puzzleWhitelist;
+    }
+
+    /**
+     * @param array $puzzleWhitelist
+     */
+    public function setPuzzleWhitelist($puzzleWhitelist)
+    {
+        $this->puzzleWhitelist = $puzzleWhitelist;
     }
 
     public function usesSyringe()
@@ -71,12 +79,16 @@ class ComposerParserResult
         return $this->directory."/".$this->syringeConfig;
     }
 
-    public function getConfigList()
+    public function getPuzzleConfigList()
     {
-        $configList = [];
-        foreach ($this->children as $parser) {
-            $configList[$parser->getNamespace()] = $parser->getAbsoluteSyringeConfig();
-        }
-        return $configList;
+        return $this->puzzleConfigList;
+    }
+
+    /**
+     * @param array $puzzleConfigList
+     */
+    public function setPuzzleConfigList($puzzleConfigList)
+    {
+        $this->puzzleConfigList = $puzzleConfigList;
     }
 }
