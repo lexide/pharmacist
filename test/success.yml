@@ -1,0 +1,4 @@
+parameters:
+  success.one: 1
+  success.two: 2
+  success.three: "%success.two%"
