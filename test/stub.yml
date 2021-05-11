@@ -1,0 +1,4 @@
+services:
+  stubTest:
+    stub: true
+    class: Lexide\Pharmacist\Parser\ComposerParser

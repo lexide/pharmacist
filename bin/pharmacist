@@ -1,6 +1,10 @@
 #!/usr/bin/env php
 <?php
 
+use Lexide\Pharmacist\Parser\ComposerParser;
+use Lexide\Pharmacist\VerifyCommand;
+use Symfony\Component\Console\Application;
+
 $baseAutoloader = __DIR__."/vendor/autoload.php";
 if (file_exists($baseAutoloader)) {
     require_once($baseAutoloader);
@@ -9,6 +13,6 @@ if (file_exists($baseAutoloader)) {
     require_once("vendor/autoload.php");
 }
 
-$application = new \Symfony\Component\Console\Application("Pharmacist", "1.0");
-$application->add(new \Lexide\Pharmacist\VerifyCommand());
+$application = new Application("Pharmacist", "1.0");
+$application->add(new VerifyCommand(new ComposerParser()));
 $application->run();

@@ -1,4 +1,5 @@
 <?php
+
 namespace Lexide\Pharmacist\Parser;
 
 class ComposerParser
@@ -10,11 +11,11 @@ class ComposerParser
     protected $vendorComposerConfigs;
 
     /**
-     * @param $filename
+     * @param string $filename
      * @return ComposerParserResult
      * @throws \Exception
      */
-    public function parse($filename)
+    public function parse(string $filename): ComposerParserResult
     {
         if (!file_exists($filename)) {
             throw new \Exception("No composer file exists at '{$filename}'");
@@ -33,7 +34,7 @@ class ComposerParser
      * @param ComposerParserResult $composerConfig
      * @throws \Exception
      */
-    protected function loadVendorComposerConfigs(ComposerParserResult $composerConfig)
+    protected function loadVendorComposerConfigs(ComposerParserResult $composerConfig): void
     {
         $this->vendorComposerConfigs = [];
 
@@ -51,35 +52,43 @@ class ComposerParser
      * @return ComposerParserResult
      * @throws \Exception
      */
-    protected function jsonDecodeFile($filename)
+    protected function jsonDecodeFile(string $filename): ComposerParserResult
     {
 
         if (!file_exists($filename)) {
             throw new \Exception("No composer file exists at '{$filename}'");
         }
 
-        $array = json_decode(file_get_contents($filename), true);
+        $composerData = json_decode(file_get_contents($filename), true);
 
-        if (!$array) {
+        if (!$composerData) {
             throw new \Exception("Could not decode '{$filename}'. ".json_last_error_msg());
         }
 
         $result = new ComposerParserResult();
-        $result->setName($array["name"]);
-        $result->setNamespace($this->getNamespace($array));
+        $result->setName($composerData["name"]);
+        $result->setNamespace($this->getNamespace($composerData));
         $result->setDirectory(dirname($filename));
-        $result->setSyringeConfig($this->getSyringeConfig($array));
-        $result->setPuzzleWhitelist($this->getPuzzleWhitelist($array));
+        $result->setSyringeConfig($this->getSyringeConfig($composerData));
+        $result->setPuzzleWhitelist($this->getPuzzleWhitelist($composerData));
 
         return $result;
     }
 
-    protected function getNamespace($array)
+    /**
+     * @param array $composerData
+     * @return string
+     */
+    protected function getNamespace(array $composerData): string
     {
-        return str_replace("/", "_", $array["name"]);
+        return str_replace("/", "_", $composerData["name"]);
     }
 
-    protected function getSyringeConfig($array)
+    /**
+     * @param array $composerData
+     * @return string
+     */
+    protected function getSyringeConfig(array $composerData): string
     {
         $paths = [
             "extra",
@@ -89,10 +98,14 @@ class ComposerParser
             "path"
         ];
 
-        return $this->traverseConfigArray($paths, $array);
+        return $this->traverseConfigArray($paths, $composerData) ?: "";
     }
 
-    protected function getPuzzleWhitelist($array)
+    /**
+     * @param array $composerData
+     * @return array
+     */
+    protected function getPuzzleWhitelist(array $composerData): array
     {
         $paths = [
             "extra",
@@ -101,15 +114,15 @@ class ComposerParser
             "lexide/syringe"
         ];
 
-        return $this->traverseConfigArray($paths, $array) ?: [];
+        return $this->traverseConfigArray($paths, $composerData);
     }
 
     /**
-     * @param $paths
-     * @param $array
-     * @return bool|null|array
+     * @param array $paths
+     * @param array $composerData
+     * @return array|string
      */
-    protected function traverseConfigArray($paths, $array)
+    protected function traverseConfigArray(array $paths, array $composerData): array|string
     {
         foreach ($paths as $directories) {
             if (!is_array($directories)) {
@@ -124,27 +137,31 @@ class ComposerParser
                     $directory = substr($directory, 1);
                     $isOptional = true;
                 }
-                if (!isset($array[$directory])) {
+
+                if (!isset($composerData[$directory])) {
                     continue;
                 }
-                $newArray = $array[$directory];
+                $newArray = $composerData[$directory];
                 break;
             }
             if (!isset($newArray)) {
                 if ($isOptional) {
-                    $newArray = $array;
+                    $newArray = $composerData;
                 } else {
-                    return false;
+                    return [];
                 }
             }
-            $array = $newArray;
+            $composerData = $newArray;
         }
 
-        // Will return something like "config/syringe.yml"
-        return $array;
+        return $composerData;
     }
 
-    protected function generateConfigList(ComposerParserResult $libraryConfig)
+    /**
+     * @param ComposerParserResult $libraryConfig
+     * @return array
+     */
+    protected function generateConfigList(ComposerParserResult $libraryConfig): array
     {
         $list = [];
         foreach ($libraryConfig->getPuzzleWhitelist() as $repoName) {

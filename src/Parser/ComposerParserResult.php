@@ -1,34 +1,64 @@
 <?php
 
-
 namespace Lexide\Pharmacist\Parser;
-
 
 class ComposerParserResult
 {
+    /**
+     * @var string
+     */
     protected $name;
+
+    /**
+     * @var string
+     */
     protected $syringeConfig;
+
+    /**
+     * @var string
+     */
     protected $namespace;
+
+    /**
+     * @var string
+     */
     protected $directory;
+
+    /**
+     * @var array
+     */
     protected $puzzleWhitelist;
+
+    /**
+     * @var array
+     */
     protected $puzzleConfigList;
 
-    public function setName($name)
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
     {
         $this->name = $name;
     }
 
-    public function setNamespace($namespace)
+    /**
+     * @param string $namespace
+     */
+    public function setNamespace(string $namespace)
     {
         $this->namespace = $namespace;
     }
 
-    public function setDirectory($directory)
+    public function setDirectory(string $directory)
     {
         $this->directory = $directory;
     }
 
-    public function setSyringeConfig($syringeConfig)
+    /**
+     * @param string $syringeConfig
+     */
+    public function setSyringeConfig(string $syringeConfig)
     {
         $this->syringeConfig = $syringeConfig;
     }
@@ -36,7 +66,7 @@ class ComposerParserResult
     /**
      * @return array
      */
-    public function getPuzzleWhitelist()
+    public function getPuzzleWhitelist(): array
     {
         return $this->puzzleWhitelist;
     }
@@ -44,42 +74,63 @@ class ComposerParserResult
     /**
      * @param array $puzzleWhitelist
      */
-    public function setPuzzleWhitelist($puzzleWhitelist)
+    public function setPuzzleWhitelist(array $puzzleWhitelist): void
     {
         $this->puzzleWhitelist = $puzzleWhitelist;
     }
 
-    public function usesSyringe()
+    /**
+     * @return bool
+     */
+    public function usesSyringe(): bool
     {
-        return $this->syringeConfig !== false;
+        return !empty($this->syringeConfig);
     }
 
-    public function getName()
+    /**
+     * @return string
+     */
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getNamespace()
+    /**
+     * @return string
+     */
+    public function getNamespace(): string
     {
         return $this->namespace;
     }
 
-    public function getSyringeConfig()
+    /**
+     * @return string
+     */
+    public function getSyringeConfig(): string
     {
         return $this->syringeConfig;
     }
 
-    public function getDirectory()
+    /**
+     * @return string
+     */
+    public function getDirectory(): string
     {
         return $this->directory;
     }
 
-    public function getAbsoluteSyringeConfig()
+    /**
+     * @return string
+     */
+    public function getAbsoluteSyringeConfig(): string
     {
         return $this->directory."/".$this->syringeConfig;
     }
 
-    public function getPuzzleConfigList()
+    /**
+     * @return array
+     */
+    public function getPuzzleConfigList(): array
     {
         return $this->puzzleConfigList;
     }
@@ -87,7 +138,7 @@ class ComposerParserResult
     /**
      * @param array $puzzleConfigList
      */
-    public function setPuzzleConfigList($puzzleConfigList)
+    public function setPuzzleConfigList(array $puzzleConfigList): void
     {
         $this->puzzleConfigList = $puzzleConfigList;
     }
