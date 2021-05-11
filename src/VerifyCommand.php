@@ -8,6 +8,7 @@ use Lexide\Syringe\Loader\YamlLoader;
 use Lexide\Syringe\ReferenceResolver;
 use Lexide\Pharmacist\Parser\ComposerParser;
 use Lexide\Pharmacist\Parser\ComposerParserResult;
+use Pimple\Container;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,66 +16,54 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class VerifyCommand extends Command
 {
-    use Loggable;
-
     /**
      * @var ComposerParser
      */
     protected $composerParser;
 
     /**
-     * @var InputInterface
+     * @param ComposerParser $composerParser
      */
-    protected $input;
-
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-
-    public function __construct()
+    public function __construct(ComposerParser $composerParser)
     {
         parent::__construct();
-        $this->composerParser = new ComposerParser();
+        $this->composerParser = $composerParser;
     }
 
-    public function configure()
+    public function configure(): void
     {
         // By setting the name as list, it's the default thing that will be run
         $this->setName("verify")
-            ->addOption("configs", "c", InputOption::VALUE_IS_ARRAY + InputOption::VALUE_OPTIONAL, "Any additional configs we want to add manually", [])
+            ->addOption("configs", "c", InputOption::VALUE_IS_ARRAY + InputOption::VALUE_REQUIRED, "Any additional configs we want to add manually", [])
             ->addOption("force", "f", InputOption::VALUE_NONE, "Whether we want to force through trying it regardless of whether it looks like we're using Puzzle-DI in the parent project")
             ->addOption("allowStubs", "s", InputOption::VALUE_NONE, "If set, will not complain about stubbed services.");
     }
 
     /**
-     * @param InputInterface $inputInterface
-     * @param OutputInterface $outputInterface
-     * @return int|null
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
      */
-    public function execute(InputInterface $inputInterface, OutputInterface $outputInterface)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->input = $inputInterface;
-        $this->output = $outputInterface;
-
         // 1. Work out what directory we're caring about
         $directory = getcwd();
-        // That was easy
 
         // 2. Work out what base config we're meant to be using
         $parserResult = $this->composerParser->parse($directory."/composer.json");
 
-        if (!$parserResult->usesSyringe() && !$inputInterface->getOption("force")) {
-            $this->error("The project in this directory '{$directory}' is not a library includable by syringe via Puzzle-DI");
+        if (!$parserResult->usesSyringe() && !$input->getOption("force")) {
+            $output->writeln("<error>The project in this directory '{$directory}' is not a library includable by syringe via Puzzle-DI</error>");
             return 1;
         }
 
-        $allowStubs = (bool) $inputInterface->getOption("allowStubs");
+        $allowStubs = $input->getOption("allowStubs");
+        $additionalConfigs = $input->getOption("configs");
 
-        $container = $this->setupContainer($parserResult, $allowStubs);
+        $container = $this->setupContainer($parserResult, $allowStubs, $additionalConfigs);
 
-        $this->log("Attempting to build all services!");
-        $this->log(count($container->keys())." services/parameters found!");
+        $output->writeln("<comment>Attempting to build all services!</comment>");
+        $output->writeln(count($container->keys())." services/parameters found!");
         /** @var \Exception[] $exceptions */
         $exceptions = [];
         foreach ($container->keys() as $key) {
@@ -88,23 +77,24 @@ class VerifyCommand extends Command
         unset($build, $container);
 
         if (count($exceptions) > 0) {
-            $this->error("Failed to successfully build ".count($exceptions)." bits of DI config");
+            $output->writeln("<error>Failed to successfully build ".count($exceptions)." bits of DI test</error>");
             foreach ($exceptions as $e) {
-                $this->log("  Message:".$e->getMessage().". File: ".$e->getFile().". Line: ".$e->getLine());
+                $output->writeln("  Message:".$e->getMessage().". File: ".$e->getFile().". Line: ".$e->getLine());
             }
             return 1;
         } else {
-            $this->success("Succeeded!");
+            $output->writeln("<info>Succeeded!</info>");
             return 0;
         }
     }
 
     /**
      * @param ComposerParserResult $parserResult
-     * @param $allowStubs
-     * @return \Pimple\Container
+     * @param bool $allowStubs
+     * @param array $additionalConfigs
+     * @return Container
      */
-    public function setupContainer(ComposerParserResult $parserResult, $allowStubs)
+    public function setupContainer(ComposerParserResult $parserResult, bool $allowStubs, array $additionalConfigs): Container
     {
         $directory = $parserResult->getDirectory();
 
@@ -114,7 +104,6 @@ class VerifyCommand extends Command
             new YamlLoader()
         ];
 
-        /** @noinspection PhpIncludeInspection */
         include($directory."/vendor/autoload.php");
 
         $serviceFactoryClass = $allowStubs? ServiceFactory::class: \Lexide\Syringe\ServiceFactory::class;
@@ -126,10 +115,10 @@ class VerifyCommand extends Command
 
         $builder->setApplicationRootDirectory($directory);
 
-        // add vendor config files
+        // add vendor test files
         $builder->addConfigFiles($parserResult->getPuzzleConfigList());
 
-        // add application config files
+        // add application test files
         if ($parserResult->usesSyringe()) {
             $builder->addConfigFile($parserResult->getAbsoluteSyringeConfig());
 
@@ -139,11 +128,9 @@ class VerifyCommand extends Command
             ]);
         }
 
-        $additionalConfigs = $this->input->getOption("configs");
         foreach ($additionalConfigs as $config) {
             $builder->addConfigFile(realpath($config));
         }
-
 
         return $builder->createContainer();
 
