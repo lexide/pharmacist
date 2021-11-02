@@ -14,7 +14,7 @@ class ServiceFactory extends BaseFactory
     {
         // if this stub's definition includes a class, use a mock of that class as the service
         if (!empty($definition["class"]) && (class_exists($definition["class"]) || interface_exists($definition["class"]))) {
-            return \Mockery::mock($definition["class"]);
+            return \Mockery::mock($definition["class"])->shouldIgnoreMissing();
         }
         return parent::createStub($key, $definition);
     }
