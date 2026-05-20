@@ -14,5 +14,5 @@ if (file_exists($baseAutoloader)) {
 }
 
 $application = new Application("Pharmacist", "1.0");
-$application->add(new VerifyCommand(new ComposerParser()));
+$application->addCommand(new VerifyCommand(new ComposerParser()));
 $application->run();
